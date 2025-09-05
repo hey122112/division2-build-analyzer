@@ -3,168 +3,695 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Division 2 Build Generator</title>
-    <!-- Use the Inter font from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Load Tailwind CSS from CDN for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Division 2 Gear Builder</title>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --accent-color: #3498db;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --card-background: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
         }
-        .build-recommendation-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
         }
-        .input-group label {
-            text-shadow: 1px 1px 2px #000;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f4f4f4;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .gear-form {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .build-result {
+            background-color: var(--card-background);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .gear-slot {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .gear-name {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        .gear-stats {
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        
+        .code-example {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        pre {
+            margin: 0;
+        }
+        
+        .language-tab {
+            background-color: #444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px 5px 0 0;
+            display: inline-block;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                margin-bottom: 5px;
+                border-radius: 5px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen p-4">
+<body>
+    <header>
+        <h1>Division 2 Gear Builder</h1>
+        <p>Input your gear and generate optimized builds</p>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="input">Gear Input</div>
+            <div class="tab" data-tab="build">Generated Build</div>
+            <div class="tab" data-tab="code">Code Examples</div>
+        </div>
+        
+        <div class="tab-content active" id="input-tab">
+            <div class="gear-form">
+                <h2>Enter Your Gear</h2>
+                <div class="form-group">
+                    <label for="mask">Mask</label>
+                    <select id="mask">
+                        <option value="">Select a mask</option>
+                        <option value="coyotes-mask">Coyote's Mask</option>
+                        <option value="nightwatcher">Nightwatcher</option>
+                        <option value="vile-mask">Vile Mask</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="backpack">Backpack</label>
+                    <select id="backpack">
+                        <option value="">Select a backpack</option>
+                        <option value="memento">Memento</option>
+                        <option value="acostas-go-bag">Acosta's Go Bag</option>
+                        <option value="force-multiplier">Force Multiplier</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="chest">Chest</label>
+                    <select id="chest">
+                        <option value="">Select a chest</option>
+                        <option value="zero-fs">Zero F's</option>
+                        <option value="spotter-vest">Vest with Spotter</option>
+                        <option value="glass-cannon">Glass Cannon</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gloves">Gloves</label>
+                    <select id="gloves">
+                        <option value="">Select gloves</option>
+                        <option value="contractors-gloves">Contractor's Gloves</option>
+                        <option value="sokolov-gloves">Sokolov Concern Gloves</option>
+                        <option value="hollow-man">Hollow Man</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="holster">Holster</label>
+                    <select id="holster">
+                        <option value="">Select a holster</option>
+                        <option value="waveform">Waveform Holster</option>
+                        <option value="dodge-city">Dodge City Gunslinger's Holster</option>
+                        <option value="sawyers-kneepads">Sawyer's Kneepads</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="kneepads">Kneepads</label>
+                    <select id="kneepads">
+                        <option value="">Select kneepads</option>
+                        <option value="imperial-dynasty">Imperial Dynasty</option>
+                        <option value="foxs-prayer">Fox's Prayer</option>
+                        <option value="emperors-guard">Emperor's Guard</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weapon">Primary Weapon</label>
+                    <select id="weapon">
+                        <option value="">Select a weapon</option>
+                        <option value="famas">FAMAS 2010</option>
+                        <option value="carbine7">Carbine 7</option>
+                        <option value="m1a">Classic M1A</option>
+                    </select>
+                </div>
+                
+                <button id="generate-build">Generate Build</button>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="build-tab">
+            <div class="build-result">
+                <h2>Your Optimized Build</h2>
+                <div id="build-output">
+                    <p>Select your gear and generate a build to see results here.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="code-tab">
+            <h2>Code Implementation Examples</h2>
+            
+            <h3>JavaScript (Client-side)</h3>
+            <div class="code-example">
+                <div class="language-tab">JavaScript</div>
+                <pre><code>// Gear data structure
+const gearData = {
+    masks: {
+        'coyotes-mask': {
+            name: "Coyote's Mask",
+            brand: "Exotic",
+            attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+            talent: "Pack Instincts"
+        },
+        // More gear items...
+    },
+    // More gear slots...
+};
 
-    <!-- Main Container -->
-    <div class="w-full max-w-4xl p-8 rounded-2xl shadow-xl build-recommendation-card border-2 border-green-500">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl sm:text-5xl font-extrabold text-green-400 mb-2">The Division 2 Build Generator</h1>
-            <p class="text-gray-300 text-lg">Enter your gear to get a tailored build recommendation.</p>
-        </header>
+// Function to generate build
+function generateBuild(selectedGear) {
+    let buildHTML = '';
+    
+    for (const [slot, itemId] of Object.entries(selectedGear)) {
+        if (!itemId) continue;
+        
+        const item = findGearItem(slot, itemId);
+        buildHTML += `
+            &lt;div class="gear-slot"&gt;
+                &lt;div class="gear-name"&gt;${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}&lt;/div&gt;
+                &lt;div class="gear-stats"&gt;
+                    Brand: ${item.brand}&lt;br&gt;
+                    Attributes: ${item.attributes.join(', ')}&lt;br&gt;
+                    ${item.talent ? `Talent: ${item.talent}` : ''}
+                &lt;/div&gt;
+            &lt;/div&gt;
+        `;
+    }
+    
+    return buildHTML || '&lt;p&gt;Please select at least one gear item.&lt;/p&gt;';
+}
 
-        <!-- Gear Input Form -->
-        <form id="buildForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Gear slots -->
-            <div class="input-group">
-                <label for="chest" class="block mb-2 font-bold">Chest Piece</label>
-                <input type="text" id="chest" name="chest" placeholder="e.g., Fenris Group AB" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+// Event listener for generate button
+document.getElementById('generate-build').addEventListener('click', function() {
+    const selectedGear = {
+        mask: document.getElementById('mask').value,
+        backpack: document.getElementById('backpack').value,
+        chest: document.getElementById('chest').value,
+        gloves: document.getElementById('gloves').value,
+        holster: document.getElementById('holster').value,
+        kneepads: document.getElementById('kneepads').value,
+        weapon: document.getElementById('weapon').value
+    };
+    
+    const buildHTML = generateBuild(selectedGear);
+    document.getElementById('build-output').innerHTML = buildHTML;
+    
+    // Switch to build tab
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.querySelector('[data-tab="build"]').classList.add('active');
+    document.getElementById('build-tab').classList.add('active');
+});</code></pre>
             </div>
-            <div class="input-group">
-                <label for="mask" class="block mb-2 font-bold">Mask</label>
-                <input type="text" id="mask" name="mask" placeholder="e.g., Providence Defense" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
-            </div>
-            <div class="input-group">
-                <label for="gloves" class="block mb-2 font-bold">Gloves</label>
-                <input type="text" id="gloves" name="gloves" placeholder="e.g., Grupo Sombra S.A." class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
-            </div>
-            <div class="input-group">
-                <label for="holster" class="block mb-2 font-bold">Holster</label>
-                <input type="text" id="holster" name="holster" placeholder="e.g., Walker Harris Co." class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
-            </div>
-            <div class="input-group">
-                <label for="backpack" class="block mb-2 font-bold">Backpack</label>
-                <input type="text" id="backpack" name="backpack" placeholder="e.g., Memento" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
-            </div>
-            <div class="input-group">
-                <label for="kneepads" class="block mb-2 font-bold">Kneepads</label>
-                <input type="text" id="kneepads" name="kneepads" placeholder="e.g., Fox's Prayer" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
-            </div>
+            
+            <h3>Python (Server-side)</h3>
+            <div class="code-example">
+                <div class="language-tab">Python</div>
+                <pre><code>from flask import Flask, request, jsonify, render_template
 
-            <!-- Weapon -->
-            <div class="col-span-1 md:col-span-2 lg:col-span-3">
-                <label for="weapon" class="block mb-2 font-bold">Weapon Talent</label>
-                <input type="text" id="weapon" name="weapon" placeholder="e.g., In Sync, Strained, Obliterate" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+app = Flask(__name__)
+
+# Sample gear database
+gear_db = {
+    "masks": {
+        "coyotes-mask": {
+            "name": "Coyote's Mask",
+            "brand": "Exotic",
+            "attributes": ["Critical Hit Chance", "Critical Hit Damage"],
+            "talent": "Pack Instincts"
+        }
+    },
+    # More gear items...
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/generate_build', methods=['POST'])
+def generate_build():
+    gear_selection = request.json
+    
+    build = {}
+    for slot, item_id in gear_selection.items():
+        if item_id and item_id in gear_db.get(slot, {}):
+            build[slot] = gear_db[slot][item_id]
+    
+    # Add build optimization logic here
+    # This could include calculating stat totals, checking set bonuses, etc.
+    
+    return jsonify(build)
+
+if __name__ == '__main__':
+    app.run(debug=True)</code></pre>
             </div>
+            
+            <h3>PHP (Server-side)</h3>
+            <div class="code-example">
+                <div class="language-tab">PHP</div>
+                <pre><code>&lt;?php
+// gear_data.php - Sample gear data
+$gear_data = [
+    'masks' => [
+        'coyotes-mask' => [
+            'name' => "Coyote's Mask",
+            'brand' => "Exotic",
+            'attributes' => ["Critical Hit Chance", "Critical Hit Damage"],
+            'talent' => "Pack Instincts"
+        ]
+    ],
+    // More gear items...
+];
 
-            <button type="submit" class="col-span-1 md:col-span-2 lg:col-span-3 w-full p-4 mt-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-green-500/50 transform hover:scale-105">
-                Generate Build
-            </button>
-        </form>
+// generate_build.php - Build generation endpoint
+header('Content-Type: application/json');
 
-        <!-- Build Recommendation Display -->
-        <div id="recommendationOutput" class="hidden mt-8 p-6 rounded-xl border border-dashed border-gray-600 bg-gray-800/50">
-            <h2 class="text-2xl sm:text-3xl font-bold text-green-400 mb-4">Build Recommendation:</h2>
-            <div id="buildName" class="text-xl font-semibold text-gray-200 mb-2"></div>
-            <div id="buildDescription" class="text-gray-300"></div>
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $build = [];
+    
+    foreach ($input as $slot => $item_id) {
+        if (!empty($item_id) && isset($gear_data[$slot][$item_id])) {
+            $build[$slot] = $gear_data[$slot][$item_id];
+        }
+    }
+    
+    // Add build optimization logic here
+    
+    echo json_encode($build);
+    exit;
+}
+
+// Frontend rendering
+?&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Division 2 Gear Builder&lt;/title&gt;
+    &lt;!-- HTML and CSS would be similar to the main implementation --&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- Form and UI elements --&gt;
+    &lt;script&gt;
+        // JavaScript to handle form submission to PHP backend
+        document.getElementById('generate-build').addEventListener('click', function() {
+            const selectedGear = {
+                mask: document.getElementById('mask').value,
+                backpack: document.getElementById('backpack').value,
+                chest: document.getElementById('chest').value,
+                gloves: document.getElementById('gloves').value,
+                holster: document.getElementById('holster').value,
+                kneepads: document.getElementById('kneepads').value,
+                weapon: document.getElementById('weapon').value
+            };
+            
+            fetch('generate_build.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(selectedGear)
+            })
+            .then(response => response.json())
+            .then(build => {
+                // Display the generated build
+                displayBuild(build);
+            });
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="absolute bottom-4 text-center text-gray-500 text-sm">
-        <p>Created for The Division 2 fans. You can upload this file to your <a href="https://github.com" target="_blank" class="text-green-500 hover:underline">GitHub</a> repo.</p>
+    
+    <footer>
+        <p>Division 2 Gear Builder &copy; 2023</p>
+        <p>This site is not affiliated with Ubisoft or The Division franchise.</p>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('buildForm');
-            const recommendationOutput = document.getElementById('recommendationOutput');
-            const buildName = document.getElementById('buildName');
-            const buildDescription = document.getElementById('buildDescription');
-
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-
-                // Get form data
-                const formData = new FormData(form);
-                const gear = {};
-                for (const [key, value] of formData.entries()) {
-                    gear[key] = value.toLowerCase().trim();
-                }
-
-                // Analyze the gear and recommend a build
-                const recommendation = analyzeGear(gear);
-
-                // Update the output section
-                buildName.textContent = recommendation.name;
-                buildDescription.textContent = recommendation.description;
-                recommendationOutput.classList.remove('hidden');
-            });
-
-            function analyzeGear(gear) {
-                let talentsFound = 0;
-                let brandMatches = {};
-                let buildType = 'Balanced';
-                let keywords = ['providence', 'fenris', 'grupo', 'ceska', 'walker', 'coyote', 'foxs prayer', 'memento', 'ninja bike', 'obliterate', 'strained', 'in sync', 'perfectly in sync', 'perfectly obliterate', 'perfectly strained'];
-
-                // Check for keywords and brands
-                for (const key in gear) {
-                    if (gear[key]) {
-                        keywords.forEach(keyword => {
-                            if (gear[key].includes(keyword)) {
-                                if (!brandMatches[keyword]) {
-                                    brandMatches[keyword] = 0;
-                                }
-                                brandMatches[keyword]++;
-                            }
-                        });
-                    }
-                }
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
                 
-                // Simplified logic to determine build type
-                if (brandMatches['fenris'] >= 1 && brandMatches['grupo'] >= 1 || brandMatches['obliterate'] >= 1 || brandMatches['strained'] >= 1) {
-                    buildType = 'DPS';
-                } else if (brandMatches['providence'] >= 2 || brandMatches['foxs prayer'] >= 1) {
-                    buildType = 'Crit DPS';
-                } else if (brandMatches['memento'] >= 1) {
-                    buildType = 'Hybrid';
-                } else if (brandMatches['ninja bike'] >= 1) {
-                    buildType = 'Hybrid';
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+        
+        // Gear data
+        const gearData = {
+            masks: {
+                'coyotes-mask': {
+                    name: "Coyote's Mask",
+                    brand: "Exotic",
+                    attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+                    talent: "Pack Instincts"
+                },
+                'nightwatcher': {
+                    name: "Nightwatcher",
+                    brand: "Gila Guard",
+                    attributes: ["Skill Haste", "Skill Damage"],
+                    talent: "Pulse Scan"
+                },
+                'vile-mask': {
+                    name: "Vile Mask",
+                    brand: "Exotic",
+                    attributes: ["Status Effects", "Skill Haste"],
+                    talent: "Toxic Delivery"
                 }
-
-                // Generate recommendation based on build type
-                let recommendation = {
-                    name: 'General Purpose Build',
-                    description: 'This is a well-rounded build suitable for various activities. Consider optimizing your attributes for survivability and sustained damage.',
-                };
-
-                switch (buildType) {
-                    case 'DPS':
-                        recommendation.name = 'High-End DPS Build';
-                        recommendation.description = 'Your gear suggests a focus on raw damage output. Pair your Fenris and Grupo pieces with talents like Obliterate or Strained on your chest and weapon respectively. Prioritize weapon damage, critical hit chance, and critical hit damage attributes.';
-                        break;
-                    case 'Crit DPS':
-                        recommendation.name = 'Providence Crit Build';
-                        recommendation.description = 'This build focuses on maximizing critical hit damage. Stack Providence pieces for the crit bonuses, and use items like Fox\'s Prayer Kneepads for their Damage to Target Out of Cover attribute. Look for crit chance and crit damage on all your gear.';
-                        break;
-                    case 'Hybrid':
-                        recommendation.name = 'Hybrid Utility Build';
-                        recommendation.description = 'With a piece like Memento or Ninja Bike, you have the potential for a powerful hybrid build. Memento allows for a balance of damage, skill efficiency, and armor regeneration, while Ninja Bike unlocks powerful brand bonuses. Focus on balancing core attributes to fit your playstyle.';
-                        break;
+            },
+            backpacks: {
+                'memento': {
+                    name: "Memento",
+                    brand: "Exotic",
+                    attributes: ["Weapon Damage", "Armor", "Skill Efficiency"],
+                    talent: "Kill Confirmed"
+                },
+                'acostas-go-bag': {
+                    name: "Acosta's Go Bag",
+                    brand: "Exotic",
+                    attributes: ["Skill Haste", "Skill Damage"],
+                    talent: "Overcharge"
+                },
+                'force-multiplier': {
+                    name: "Force Multiplier",
+                    brand: "Alps Summit Armament",
+                    attributes: ["Skill Damage", "Skill Haste"],
+                    talent: "Combined Arms"
                 }
-
-                return recommendation;
+            },
+            chests: {
+                'zero-fs': {
+                    name: "Zero F's",
+                    brand: "Badger Tuff",
+                    attributes: ["Armor", "Explosive Resistance"],
+                    talent: "Unbreakable"
+                },
+                'spotter-vest': {
+                    name: "Vest with Spotter",
+                    brand: "Various",
+                    attributes: ["Weapon Damage", "Critical Hit Chance"],
+                    talent: "Spotter"
+                },
+                'glass-cannon': {
+                    name: "Glass Cannon",
+                    brand: "Providence Defense",
+                    attributes: ["Weapon Damage", "Headshot Damage"],
+                    talent: "Glass Cannon"
+                }
+            },
+            gloves: {
+                'contractors-gloves': {
+                    name: "Contractor's Gloves",
+                    brand: "Petrov Defense Group",
+                    attributes: ["LMG Damage", "Critical Hit Chance"],
+                    talent: null
+                },
+                'sokolov-gloves': {
+                    name: "Sokolov Concern Gloves",
+                    brand: "Sokolov Concern",
+                    attributes: ["SMG Damage", "Critical Hit Damage"],
+                    talent: null
+                },
+                'hollow-man': {
+                    name: "Hollow Man",
+                    brand: "Ceska Vyroba",
+                    attributes: ["Health Damage", "Critical Hit Chance"],
+                    talent: null
+                }
+            },
+            holsters: {
+                'waveform': {
+                    name: "Waveform Holster",
+                    brand: "Exotic",
+                    attributes: ["Skill Damage", "Skill Haste"],
+                    talent: "AC Capacitor"
+                },
+                'dodge-city': {
+                    name: "Dodge City Gunslinger's Holster",
+                    brand: "Exotic",
+                    attributes: ["Pistol Damage", "Weapon Handling"],
+                    talent: "Quick Draw"
+                },
+                'sawyers-kneepads': {
+                    name: "Sawyer's Kneepads",
+                    brand: "Exotic",
+                    attributes: ["Explosive Resistance", "Armor"],
+                    talent: "Stand Your Ground"
+                }
+            },
+            kneepads: {
+                'imperial-dynasty': {
+                    name: "Imperial Dynasty",
+                    brand: "Exotic",
+                    attributes: ["Status Effects", "Skill Haste"],
+                    talent: "Dynasty Holster"
+                },
+                'foxs-prayer': {
+                    name: "Fox's Prayer",
+                    brand: "Overlord Armaments",
+                    attributes: ["Damage to Target Out of Cover", "Rifle Damage"],
+                    talent: null
+                },
+                'emperors-guard': {
+                    name: "Emperor's Guard",
+                    brand: "Murakami Industries",
+                    attributes: ["Skill Damage", "Armor Regeneration"],
+                    talent: null
+                }
+            },
+            weapons: {
+                'famas': {
+                    name: "FAMAS 2010",
+                    type: "Assault Rifle",
+                    damage: "High RPM",
+                    attributes: ["Damage to Target Out of Cover", "Critical Hit Chance"],
+                    talent: "Strained"
+                },
+                'carbine7': {
+                    name: "Carbine 7",
+                    type: "Assault Rifle",
+                    damage: "Balanced",
+                    attributes: ["Damage to Armor", "Critical Hit Damage"],
+                    talent: "Fast Hands"
+                },
+                'm1a': {
+                    name: "Classic M1A",
+                    type: "Rifle",
+                    damage: "High per shot",
+                    attributes: ["Headshot Damage", "Weapon Handling"],
+                    talent: "Boomerang"
+                }
             }
+        };
+        
+        // Function to find gear item
+        function findGearItem(slot, itemId) {
+            // Handle plural/singular conversion (e.g., backpacks -> backpack)
+            let category = slot;
+            if (slot === 'kneepads') category = 'kneepads';
+            else if (slot !== 'weapon') category = slot + 's';
+            
+            return gearData[category][itemId];
+        }
+        
+        // Function to generate build
+        function generateBuild(selectedGear) {
+            let buildHTML = '';
+            let hasSelection = false;
+            
+            for (const [slot, itemId] of Object.entries(selectedGear)) {
+                if (!itemId) continue;
+                
+                hasSelection = true;
+                const item = findGearItem(slot, itemId);
+                buildHTML += `
+                    <div class="gear-slot">
+                        <div class="gear-name">${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}</div>
+                        <div class="gear-stats">
+                            ${item.brand ? `Brand: ${item.brand}<br>` : ''}
+                            ${item.type ? `Type: ${item.type}<br>` : ''}
+                            ${item.attributes ? `Attributes: ${item.attributes.join(', ')}<br>` : ''}
+                            ${item.talent ? `Talent: ${item.talent}` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (!hasSelection) {
+                return '<p>Please select at least one gear item.</p>';
+            }
+            
+            // Add build summary
+            buildHTML += `
+                <div class="build-summary">
+                    <h3>Build Summary</h3>
+                    <p>This build focuses on a combination of damage and utility. Adjust based on your playstyle.</p>
+                </div>
+            `;
+            
+            return buildHTML;
+        }
+        
+        // Event listener for generate button
+        document.getElementById('generate-build').addEventListener('click', function() {
+            const selectedGear = {
+                mask: document.getElementById('mask').value,
+                backpack: document.getElementById('backpack').value,
+                chest: document.getElementById('chest').value,
+                gloves: document.getElementById('gloves').value,
+                holster: document.getElementById('holster').value,
+                kneepads: document.getElementById('kneepads').value,
+                weapon: document.getElementById('weapon').value
+            };
+            
+            const buildHTML = generateBuild(selectedGear);
+            document.getElementById('build-output').innerHTML = buildHTML;
+            
+            // Switch to build tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector('[data-tab="build"]').classList.add('active');
+            document.getElementById('build-tab').classList.add('active');
         });
     </script>
-
 </body>
 </html>
