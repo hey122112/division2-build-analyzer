@@ -12,6 +12,10 @@
             --background-color: #ecf0f1;
             --text-color: #2c3e50;
             --card-background: #ffffff;
+            --exotic-color: #ff9900;
+            --named-color: #9b59b6;
+            --gearset-color: #2ecc71;
+            --high-end-color: #e74c3c;
         }
         
         * {
@@ -122,7 +126,6 @@
         
         .gear-name {
             font-weight: bold;
-            color: var(--secondary-color);
         }
         
         .gear-stats {
@@ -159,6 +162,22 @@
             color: white;
         }
         
+        .quality-exotic {
+            color: var(--exotic-color);
+        }
+        
+        .quality-named {
+            color: var(--named-color);
+        }
+        
+        .quality-gearset {
+            color: var(--gearset-color);
+        }
+        
+        .quality-high-end {
+            color: var(--high-end-color);
+        }
+        
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -191,9 +210,7 @@
                     <label for="mask">Mask</label>
                     <select id="mask">
                         <option value="">Select a mask</option>
-                        <option value="coyotes-mask">Coyote's Mask</option>
-                        <option value="nightwatcher">Nightwatcher</option>
-                        <option value="vile-mask">Vile Mask</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
                 
@@ -201,9 +218,7 @@
                     <label for="backpack">Backpack</label>
                     <select id="backpack">
                         <option value="">Select a backpack</option>
-                        <option value="memento">Memento</option>
-                        <option value="acostas-go-bag">Acosta's Go Bag</option>
-                        <option value="force-multiplier">Force Multiplier</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
                 
@@ -211,9 +226,7 @@
                     <label for="chest">Chest</label>
                     <select id="chest">
                         <option value="">Select a chest</option>
-                        <option value="zero-fs">Zero F's</option>
-                        <option value="spotter-vest">Vest with Spotter</option>
-                        <option value="glass-cannon">Glass Cannon</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
                 
@@ -221,9 +234,7 @@
                     <label for="gloves">Gloves</label>
                     <select id="gloves">
                         <option value="">Select gloves</option>
-                        <option value="contractors-gloves">Contractor's Gloves</option>
-                        <option value="sokolov-gloves">Sokolov Concern Gloves</option>
-                        <option value="hollow-man">Hollow Man</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
                 
@@ -231,9 +242,7 @@
                     <label for="holster">Holster</label>
                     <select id="holster">
                         <option value="">Select a holster</option>
-                        <option value="waveform">Waveform Holster</option>
-                        <option value="dodge-city">Dodge City Gunslinger's Holster</option>
-                        <option value="sawyers-kneepads">Sawyer's Kneepads</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
                 
@@ -241,9 +250,7 @@
                     <label for="kneepads">Kneepads</label>
                     <select id="kneepads">
                         <option value="">Select kneepads</option>
-                        <option value="imperial-dynasty">Imperial Dynasty</option>
-                        <option value="foxs-prayer">Fox's Prayer</option>
-                        <option value="emperors-guard">Emperor's Guard</option>
+                        <!-- Options will be populated by JavaScript -->
                     </select>
                 </div>
                 
@@ -254,6 +261,8 @@
                         <option value="famas">FAMAS 2010</option>
                         <option value="carbine7">Carbine 7</option>
                         <option value="m1a">Classic M1A</option>
+                        <option value="vector">Vector SBR 9mm</option>
+                        <option value="mk17">MK17</option>
                     </select>
                 </div>
                 
@@ -283,7 +292,8 @@ const gearData = {
             name: "Coyote's Mask",
             brand: "Exotic",
             attributes: ["Critical Hit Chance", "Critical Hit Damage"],
-            talent: "Pack Instincts"
+            talent: "Pack Instincts",
+            quality: "Exotic"
         },
         // More gear items...
     },
@@ -298,11 +308,14 @@ function generateBuild(selectedGear) {
         if (!itemId) continue;
         
         const item = findGearItem(slot, itemId);
+        const qualityClass = `quality-${item.quality.toLowerCase().replace(' ', '-')}`;
+        
         buildHTML += `
             &lt;div class="gear-slot"&gt;
-                &lt;div class="gear-name"&gt;${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}&lt;/div&gt;
+                &lt;div class="gear-name ${qualityClass}"&gt;${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}&lt;/div&gt;
                 &lt;div class="gear-stats"&gt;
                     Brand: ${item.brand}&lt;br&gt;
+                    Core: ${item.core}&lt;br&gt;
                     Attributes: ${item.attributes.join(', ')}&lt;br&gt;
                     ${item.talent ? `Talent: ${item.talent}` : ''}
                 &lt;/div&gt;
@@ -349,8 +362,10 @@ gear_db = {
         "coyotes-mask": {
             "name": "Coyote's Mask",
             "brand": "Exotic",
+            "core": "Weapon Damage",
             "attributes": ["Critical Hit Chance", "Critical Hit Damage"],
-            "talent": "Pack Instincts"
+            "talent": "Pack Instincts",
+            "quality": "Exotic"
         }
     },
     # More gear items...
@@ -388,8 +403,10 @@ $gear_data = [
         'coyotes-mask' => [
             'name' => "Coyote's Mask",
             'brand' => "Exotic",
+            'core' => "Weapon Damage",
             'attributes' => ["Critical Hit Chance", "Critical Hit Damage"],
-            'talent' => "Pack Instincts"
+            'talent' => "Pack Instincts",
+            'quality' => "Exotic"
         ]
     ],
     // More gear items...
@@ -476,159 +493,314 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         });
         
-        // Gear data
+        // Gear data based on the provided CSV
         const gearData = {
             masks: {
                 'coyotes-mask': {
                     name: "Coyote's Mask",
                     brand: "Exotic",
+                    core: "Weapon Damage",
                     attributes: ["Critical Hit Chance", "Critical Hit Damage"],
-                    talent: "Pack Instincts"
+                    talent: "Pack Instincts",
+                    quality: "Exotic"
                 },
                 'nightwatcher': {
                     name: "Nightwatcher",
                     brand: "Gila Guard",
-                    attributes: ["Skill Haste", "Skill Damage"],
-                    talent: "Pulse Scan"
+                    core: "Armor",
+                    attributes: ["Pulse Haste", "Skill Haste"],
+                    talent: "Pulse Scan",
+                    quality: "Named"
                 },
-                'vile-mask': {
-                    name: "Vile Mask",
-                    brand: "Exotic",
-                    attributes: ["Status Effects", "Skill Haste"],
-                    talent: "Toxic Delivery"
+                'punch-drunk': {
+                    name: "Punch Drunk",
+                    brand: "Douglas & Harding",
+                    core: "Weapon Damage",
+                    attributes: ["Headshot Damage", "Critical Hit Chance"],
+                    talent: null,
+                    quality: "Named"
+                },
+                'the-hollow-man': {
+                    name: "The Hollow Man",
+                    brand: "Yaahl Gear",
+                    core: "Armor",
+                    attributes: ["Damage to Health", "Critical Hit Chance"],
+                    talent: null,
+                    quality: "Named"
+                },
+                'aces-mask': {
+                    name: "Aces and Eights Mask",
+                    brand: "Aces and Eights",
+                    core: "Weapon Damage",
+                    attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+                    talent: null,
+                    quality: "Gear Set"
+                },
+                'foundry-mask': {
+                    name: "Foundry Bullwark Mask",
+                    brand: "Foundry Bullwark",
+                    core: "N/A",
+                    attributes: ["Armor", "Hazard Protection"],
+                    talent: null,
+                    quality: "Gear Set"
                 }
             },
             backpacks: {
+                'acostas-go-bag': {
+                    name: "Acosta's Go-Bag",
+                    brand: "Exotic",
+                    core: "Skill Tier",
+                    attributes: ["Skill Haste", "Skill Damage"],
+                    talent: "One in Hand...",
+                    quality: "Exotic"
+                },
                 'memento': {
                     name: "Memento",
                     brand: "Exotic",
-                    attributes: ["Weapon Damage", "Armor", "Skill Efficiency"],
-                    talent: "Kill Confirmed"
+                    core: "Weapon Damage",
+                    attributes: ["Armor", "Skill Efficiency"],
+                    talent: "Kill Confirmed",
+                    quality: "Exotic"
                 },
-                'acostas-go-bag': {
-                    name: "Acosta's Go Bag",
-                    brand: "Exotic",
-                    attributes: ["Skill Haste", "Skill Damage"],
-                    talent: "Overcharge"
+                'devils-due': {
+                    name: "Devil's Due",
+                    brand: "Ceska Vyroba s.r.o.",
+                    core: "Weapon Damage",
+                    attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+                    talent: "Perfect Clutch",
+                    quality: "Named"
                 },
-                'force-multiplier': {
-                    name: "Force Multiplier",
-                    brand: "Alps Summit Armament",
+                'percussive-maintenance': {
+                    name: "Percussive Maintenance",
+                    brand: "Alps Summit Armaments",
+                    core: "Skill Tier",
                     attributes: ["Skill Damage", "Skill Haste"],
-                    talent: "Combined Arms"
+                    talent: "Perfect Tech Support",
+                    quality: "Named"
+                },
+                'strategic-alignment': {
+                    name: "Strategic Alignment",
+                    brand: "China Light Industries Corporation",
+                    core: "Skill Tier",
+                    attributes: ["Skill Haste", "Status Effects"],
+                    talent: "Perfect Shock and Awe",
+                    quality: "Named"
+                },
+                'the-gift': {
+                    name: "The Gift",
+                    brand: "Providence Defense",
+                    core: "Weapon Damage",
+                    attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+                    talent: "Perfect Vigilance",
+                    quality: "Named"
                 }
             },
             chests: {
+                'tardigrade': {
+                    name: "Tardigrade Armor System",
+                    brand: "Exotic",
+                    core: "Armor",
+                    attributes: ["Explosive Resistance", "Armor Regeneration"],
+                    talent: "Ablative Nano-Plating",
+                    quality: "Exotic"
+                },
                 'zero-fs': {
                     name: "Zero F's",
                     brand: "Badger Tuff",
-                    attributes: ["Armor", "Explosive Resistance"],
-                    talent: "Unbreakable"
+                    core: "Armor",
+                    attributes: ["Explosive Resistance", "Health"],
+                    talent: "Perfectly Unbreakable",
+                    quality: "Named"
                 },
-                'spotter-vest': {
-                    name: "Vest with Spotter",
-                    brand: "Various",
-                    attributes: ["Weapon Damage", "Critical Hit Chance"],
-                    talent: "Spotter"
+                'pristine-example': {
+                    name: "Pristine Example",
+                    brand: "Airaldi Holdings",
+                    core: "Weapon Damage",
+                    attributes: ["Headshot Damage", "Weapon Handling"],
+                    talent: "Perfect Focus",
+                    quality: "Named"
                 },
-                'glass-cannon': {
-                    name: "Glass Cannon",
+                'ferocious-calm': {
+                    name: "Ferocious Calm",
+                    brand: "Fenris Group AB",
+                    core: "Weapon Damage",
+                    attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+                    talent: "Perfect Overwatch",
+                    quality: "Named"
+                },
+                'the-sacrifice': {
+                    name: "The Sacrifice",
                     brand: "Providence Defense",
-                    attributes: ["Weapon Damage", "Headshot Damage"],
-                    talent: "Glass Cannon"
+                    core: "Weapon Damage",
+                    attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+                    talent: "Perfect Glass Cannon",
+                    quality: "Named"
+                },
+                'pointman': {
+                    name: "Pointman",
+                    brand: "Gila Guard",
+                    core: "Armor",
+                    attributes: ["Explosive Resistance", "Hazard Protection"],
+                    talent: "Perfect Vanguard",
+                    quality: "Named"
                 }
             },
             gloves: {
+                'btsu-gloves': {
+                    name: "BTSU Gloves",
+                    brand: "Exotic",
+                    core: "Skill Tier",
+                    attributes: ["Skill Haste", "Repair Skills"],
+                    talent: "Transference Overclock",
+                    quality: "Exotic"
+                },
+                'deathgrips': {
+                    name: "Deathgrips",
+                    brand: "5.11 Tactical",
+                    core: "Armor",
+                    attributes: ["Armor on Kill", "Critical Hit Chance"],
+                    talent: null,
+                    quality: "Named"
+                },
+                'motherly-love': {
+                    name: "Motherly Love",
+                    brand: "Alps Summit Armaments",
+                    core: "Skill Tier",
+                    attributes: ["Skill Health", "Skill Haste"],
+                    talent: null,
+                    quality: "Named"
+                },
                 'contractors-gloves': {
                     name: "Contractor's Gloves",
                     brand: "Petrov Defense Group",
-                    attributes: ["LMG Damage", "Critical Hit Chance"],
-                    talent: null
+                    core: "Weapon Damage",
+                    attributes: ["Damage to Armor", "Critical Hit Chance"],
+                    talent: null,
+                    quality: "Named"
                 },
-                'sokolov-gloves': {
-                    name: "Sokolov Concern Gloves",
+                'firm-handshake': {
+                    name: "Firm Handshake",
                     brand: "Sokolov Concern",
-                    attributes: ["SMG Damage", "Critical Hit Damage"],
-                    talent: null
-                },
-                'hollow-man': {
-                    name: "Hollow Man",
-                    brand: "Ceska Vyroba",
-                    attributes: ["Health Damage", "Critical Hit Chance"],
-                    talent: null
+                    core: "Weapon Damage",
+                    attributes: ["Status Effects", "Critical Hit Chance"],
+                    talent: null,
+                    quality: "Named"
                 }
             },
             holsters: {
-                'waveform': {
-                    name: "Waveform Holster",
-                    brand: "Exotic",
-                    attributes: ["Skill Damage", "Skill Haste"],
-                    talent: "AC Capacitor"
-                },
                 'dodge-city': {
                     name: "Dodge City Gunslinger's Holster",
                     brand: "Exotic",
-                    attributes: ["Pistol Damage", "Weapon Handling"],
-                    talent: "Quick Draw"
+                    core: "Weapon Damage",
+                    attributes: ["Weapon Handling", "Headshot Damage"],
+                    talent: "Quick Draw",
+                    quality: "Exotic"
                 },
-                'sawyers-kneepads': {
-                    name: "Sawyer's Kneepads",
-                    brand: "Exotic",
-                    attributes: ["Explosive Resistance", "Armor"],
-                    talent: "Stand Your Ground"
-                }
-            },
-            kneepads: {
                 'imperial-dynasty': {
                     name: "Imperial Dynasty",
                     brand: "Exotic",
-                    attributes: ["Status Effects", "Skill Haste"],
-                    talent: "Dynasty Holster"
+                    core: "Skill Tier",
+                    attributes: ["Status Effects", "Hazard Protection"],
+                    talent: "Dragon's Glare",
+                    quality: "Exotic"
                 },
-                'foxs-prayer': {
-                    name: "Fox's Prayer",
-                    brand: "Overlord Armaments",
-                    attributes: ["Damage to Target Out of Cover", "Rifle Damage"],
-                    talent: null
+                'ammo-dump': {
+                    name: "Ammo Dump",
+                    brand: "Badger Tuff",
+                    core: "Armor",
+                    attributes: ["Ammo Capacity", "Explosive Resistance"],
+                    talent: null,
+                    quality: "Named"
+                },
+                'forge': {
+                    name: "Forge",
+                    brand: "Richter & Kaiser GmbH",
+                    core: "Skill Tier",
+                    attributes: ["Shield Health", "Skill Haste"],
+                    talent: null,
+                    quality: "Named"
+                },
+                'claws-out': {
+                    name: "Claws Out",
+                    brand: "Wyvern Wear",
+                    core: "Pistol Damage",
+                    attributes: ["Melee Damage", "Critical Hit Chance"],
+                    talent: null,
+                    quality: "Named"
+                }
+            },
+            kneepads: {
+                'ninjabike': {
+                    name: "NinjaBike Messenger Kneepads",
+                    brand: "Exotic",
+                    core: "Weapon Damage",
+                    attributes: ["Critical Hit Chance", "Critical Hit Damage"],
+                    talent: "Parkour!",
+                    quality: "Exotic"
+                },
+                'sawyers': {
+                    name: "Sawyer's Kneepads",
+                    brand: "Exotic",
+                    core: "Armor",
+                    attributes: ["Explosive Resistance", "Health"],
+                    talent: "Grace Under Fire",
+                    quality: "Exotic"
                 },
                 'emperors-guard': {
                     name: "Emperor's Guard",
                     brand: "Murakami Industries",
-                    attributes: ["Skill Damage", "Armor Regeneration"],
-                    talent: null
-                }
-            },
-            weapons: {
-                'famas': {
-                    name: "FAMAS 2010",
-                    type: "Assault Rifle",
-                    damage: "High RPM",
+                    core: "Skill Tier",
+                    attributes: ["Armor Regeneration", "Skill Haste"],
+                    talent: null,
+                    quality: "Named"
+                },
+                'foxs-prayer': {
+                    name: "Fox's Prayer",
+                    brand: "Overlord Armaments",
+                    core: "Weapon Damage",
                     attributes: ["Damage to Target Out of Cover", "Critical Hit Chance"],
-                    talent: "Strained"
-                },
-                'carbine7': {
-                    name: "Carbine 7",
-                    type: "Assault Rifle",
-                    damage: "Balanced",
-                    attributes: ["Damage to Armor", "Critical Hit Damage"],
-                    talent: "Fast Hands"
-                },
-                'm1a': {
-                    name: "Classic M1A",
-                    type: "Rifle",
-                    damage: "High per shot",
-                    attributes: ["Headshot Damage", "Weapon Handling"],
-                    talent: "Boomerang"
+                    talent: null,
+                    quality: "Named"
                 }
             }
         };
-        
+
+        // Populate dropdowns with gear options
+        function populateDropdowns() {
+            const slots = ['mask', 'backpack', 'chest', 'gloves', 'holster', 'kneepads'];
+            
+            slots.forEach(slot => {
+                const dropdown = document.getElementById(slot);
+                const gearItems = gearData[slot + 's'];
+                
+                // Clear existing options except the first one
+                while (dropdown.options.length > 1) {
+                    dropdown.remove(1);
+                }
+                
+                // Add gear items to dropdown
+                for (const [id, item] of Object.entries(gearItems)) {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    
+                    // Add quality indicator
+                    let qualityPrefix = '';
+                    if (item.quality === 'Exotic') qualityPrefix = '★ ';
+                    else if (item.quality === 'Named') qualityPrefix = '◆ ';
+                    else if (item.quality === 'Gear Set') qualityPrefix = '◼ ';
+                    
+                    option.textContent = `${qualityPrefix}${item.name} (${item.brand})`;
+                    dropdown.appendChild(option);
+                }
+            });
+        }
+
         // Function to find gear item
         function findGearItem(slot, itemId) {
-            // Handle plural/singular conversion (e.g., backpacks -> backpack)
+            // Handle plural/singular conversion
             let category = slot;
             if (slot === 'kneepads') category = 'kneepads';
-            else if (slot !== 'weapon') category = slot + 's';
+            else category = slot + 's';
             
             return gearData[category][itemId];
         }
@@ -643,12 +815,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 hasSelection = true;
                 const item = findGearItem(slot, itemId);
+                const qualityClass = `quality-${item.quality.toLowerCase().replace(' ', '-')}`;
+                
                 buildHTML += `
                     <div class="gear-slot">
-                        <div class="gear-name">${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}</div>
+                        <div class="gear-name ${qualityClass}">${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}</div>
                         <div class="gear-stats">
-                            ${item.brand ? `Brand: ${item.brand}<br>` : ''}
-                            ${item.type ? `Type: ${item.type}<br>` : ''}
+                            Brand: ${item.brand}<br>
+                            Core: ${item.core}<br>
                             ${item.attributes ? `Attributes: ${item.attributes.join(', ')}<br>` : ''}
                             ${item.talent ? `Talent: ${item.talent}` : ''}
                         </div>
@@ -692,6 +866,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             document.querySelector('[data-tab="build"]').classList.add('active');
             document.getElementById('build-tab').classList.add('active');
         });
+        
+        // Initialize dropdowns
+        populateDropdowns();
     </script>
 </body>
 </html>
