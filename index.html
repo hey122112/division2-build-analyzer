@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Division 2 Build Generator</title>
+    <!-- Use the Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Load Tailwind CSS from CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .build-recommendation-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-group label {
+            text-shadow: 1px 1px 2px #000;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-4xl p-8 rounded-2xl shadow-xl build-recommendation-card border-2 border-green-500">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-green-400 mb-2">The Division 2 Build Generator</h1>
+            <p class="text-gray-300 text-lg">Enter your gear to get a tailored build recommendation.</p>
+        </header>
+
+        <!-- Gear Input Form -->
+        <form id="buildForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Gear slots -->
+            <div class="input-group">
+                <label for="chest" class="block mb-2 font-bold">Chest Piece</label>
+                <input type="text" id="chest" name="chest" placeholder="e.g., Fenris Group AB" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+            </div>
+            <div class="input-group">
+                <label for="mask" class="block mb-2 font-bold">Mask</label>
+                <input type="text" id="mask" name="mask" placeholder="e.g., Providence Defense" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+            </div>
+            <div class="input-group">
+                <label for="gloves" class="block mb-2 font-bold">Gloves</label>
+                <input type="text" id="gloves" name="gloves" placeholder="e.g., Grupo Sombra S.A." class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+            </div>
+            <div class="input-group">
+                <label for="holster" class="block mb-2 font-bold">Holster</label>
+                <input type="text" id="holster" name="holster" placeholder="e.g., Walker Harris Co." class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+            </div>
+            <div class="input-group">
+                <label for="backpack" class="block mb-2 font-bold">Backpack</label>
+                <input type="text" id="backpack" name="backpack" placeholder="e.g., Memento" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+            </div>
+            <div class="input-group">
+                <label for="kneepads" class="block mb-2 font-bold">Kneepads</label>
+                <input type="text" id="kneepads" name="kneepads" placeholder="e.g., Fox's Prayer" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+            </div>
+
+            <!-- Weapon -->
+            <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                <label for="weapon" class="block mb-2 font-bold">Weapon Talent</label>
+                <input type="text" id="weapon" name="weapon" placeholder="e.g., In Sync, Strained, Obliterate" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-green-500 transition-colors">
+            </div>
+
+            <button type="submit" class="col-span-1 md:col-span-2 lg:col-span-3 w-full p-4 mt-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-green-500/50 transform hover:scale-105">
+                Generate Build
+            </button>
+        </form>
+
+        <!-- Build Recommendation Display -->
+        <div id="recommendationOutput" class="hidden mt-8 p-6 rounded-xl border border-dashed border-gray-600 bg-gray-800/50">
+            <h2 class="text-2xl sm:text-3xl font-bold text-green-400 mb-4">Build Recommendation:</h2>
+            <div id="buildName" class="text-xl font-semibold text-gray-200 mb-2"></div>
+            <div id="buildDescription" class="text-gray-300"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="absolute bottom-4 text-center text-gray-500 text-sm">
+        <p>Created for The Division 2 fans. You can upload this file to your <a href="https://github.com" target="_blank" class="text-green-500 hover:underline">GitHub</a> repo.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('buildForm');
+            const recommendationOutput = document.getElementById('recommendationOutput');
+            const buildName = document.getElementById('buildName');
+            const buildDescription = document.getElementById('buildDescription');
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // Get form data
+                const formData = new FormData(form);
+                const gear = {};
+                for (const [key, value] of formData.entries()) {
+                    gear[key] = value.toLowerCase().trim();
+                }
+
+                // Analyze the gear and recommend a build
+                const recommendation = analyzeGear(gear);
+
+                // Update the output section
+                buildName.textContent = recommendation.name;
+                buildDescription.textContent = recommendation.description;
+                recommendationOutput.classList.remove('hidden');
+            });
+
+            function analyzeGear(gear) {
+                let talentsFound = 0;
+                let brandMatches = {};
+                let buildType = 'Balanced';
+                let keywords = ['providence', 'fenris', 'grupo', 'ceska', 'walker', 'coyote', 'foxs prayer', 'memento', 'ninja bike', 'obliterate', 'strained', 'in sync', 'perfectly in sync', 'perfectly obliterate', 'perfectly strained'];
+
+                // Check for keywords and brands
+                for (const key in gear) {
+                    if (gear[key]) {
+                        keywords.forEach(keyword => {
+                            if (gear[key].includes(keyword)) {
+                                if (!brandMatches[keyword]) {
+                                    brandMatches[keyword] = 0;
+                                }
+                                brandMatches[keyword]++;
+                            }
+                        });
+                    }
+                }
+                
+                // Simplified logic to determine build type
+                if (brandMatches['fenris'] >= 1 && brandMatches['grupo'] >= 1 || brandMatches['obliterate'] >= 1 || brandMatches['strained'] >= 1) {
+                    buildType = 'DPS';
+                } else if (brandMatches['providence'] >= 2 || brandMatches['foxs prayer'] >= 1) {
+                    buildType = 'Crit DPS';
+                } else if (brandMatches['memento'] >= 1) {
+                    buildType = 'Hybrid';
+                } else if (brandMatches['ninja bike'] >= 1) {
+                    buildType = 'Hybrid';
+                }
+
+                // Generate recommendation based on build type
+                let recommendation = {
+                    name: 'General Purpose Build',
+                    description: 'This is a well-rounded build suitable for various activities. Consider optimizing your attributes for survivability and sustained damage.',
+                };
+
+                switch (buildType) {
+                    case 'DPS':
+                        recommendation.name = 'High-End DPS Build';
+                        recommendation.description = 'Your gear suggests a focus on raw damage output. Pair your Fenris and Grupo pieces with talents like Obliterate or Strained on your chest and weapon respectively. Prioritize weapon damage, critical hit chance, and critical hit damage attributes.';
+                        break;
+                    case 'Crit DPS':
+                        recommendation.name = 'Providence Crit Build';
+                        recommendation.description = 'This build focuses on maximizing critical hit damage. Stack Providence pieces for the crit bonuses, and use items like Fox\'s Prayer Kneepads for their Damage to Target Out of Cover attribute. Look for crit chance and crit damage on all your gear.';
+                        break;
+                    case 'Hybrid':
+                        recommendation.name = 'Hybrid Utility Build';
+                        recommendation.description = 'With a piece like Memento or Ninja Bike, you have the potential for a powerful hybrid build. Memento allows for a balance of damage, skill efficiency, and armor regeneration, while Ninja Bike unlocks powerful brand bonuses. Focus on balancing core attributes to fit your playstyle.';
+                        break;
+                }
+
+                return recommendation;
+            }
+        });
+    </script>
+
+</body>
+</html>
