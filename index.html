@@ -168,27 +168,6 @@
             color: var(--primary-color);
         }
         
-        .code-example {
-            background-color: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-        
-        pre {
-            margin: 0;
-        }
-        
-        .language-tab {
-            background-color: #444;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px 5px 0 0;
-            display: inline-block;
-        }
-        
         footer {
             text-align: center;
             padding: 20px;
@@ -262,7 +241,6 @@
         <div class="tabs">
             <div class="tab active" data-tab="input">Gear Input</div>
             <div class="tab" data-tab="build">Generated Build</div>
-            <div class="tab" data-tab="code">Code Examples</div>
         </div>
         
         <div class="tab-content active" id="input-tab">
@@ -341,200 +319,6 @@
                     <h3>Build Statistics</h3>
                     <p>Select gear to see statistics</p>
                 </div>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="code-tab">
-            <h2>Code Implementation Examples</h2>
-            
-            <h3>JavaScript (Client-side)</h3>
-            <div class="code-example">
-                <div class="language-tab">JavaScript</div>
-                <pre><code>// Gear data structure
-const gearData = {
-    masks: {
-        'coyotes-mask': {
-            name: "Coyote's Mask",
-            brand: "Exotic",
-            attributes: ["Critical Hit Chance", "Critical Hit Damage"],
-            talent: "Pack Instincts",
-            quality: "Exotic"
-        },
-        // More gear items...
-    },
-    // More gear slots...
-};
-
-// Function to generate build
-function generateBuild(selectedGear) {
-    let buildHTML = '';
-    
-    for (const [slot, itemId] of Object.entries(selectedGear)) {
-        if (!itemId) continue;
-        
-        const item = findGearItem(slot, itemId);
-        const qualityClass = `quality-${item.quality.toLowerCase().replace(' ', '-')}`;
-        
-        buildHTML += `
-            &lt;div class="gear-slot"&gt;
-                &lt;div class="gear-name ${qualityClass}"&gt;${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}&lt;/div&gt;
-                &lt;div class="gear-stats"&gt;
-                    Brand: ${item.brand}&lt;br&gt;
-                    Core: ${item.core}&lt;br&gt;
-                    Attributes: ${item.attributes.join(', ')}&lt;br&gt;
-                    ${item.talent ? `Talent: ${item.talent}` : ''}
-                &lt;/div&gt;
-            &lt;/div&gt;
-        `;
-    }
-    
-    return buildHTML || '&lt;p&gt;Please select at least one gear item.&lt;/p&gt;';
-}
-
-// Event listener for generate button
-document.getElementById('generate-build').addEventListener('click', function() {
-    const selectedGear = {
-        mask: document.getElementById('mask').value,
-        backpack: document.getElementById('backpack').value,
-        chest: document.getElementById('chest').value,
-        gloves: document.getElementById('gloves').value,
-        holster: document.getElementById('holster').value,
-        kneepads: document.getElementById('kneepads').value,
-        weapon: document.getElementById('weapon').value
-    };
-    
-    const buildHTML = generateBuild(selectedGear);
-    document.getElementById('build-output').innerHTML = buildHTML;
-    
-    // Switch to build tab
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    document.querySelector('[data-tab="build"]').classList.add('active');
-    document.getElementById('build-tab').classList.add('active');
-});</code></pre>
-            </div>
-            
-            <h3>Python (Server-side)</h3>
-            <div class="code-example">
-                <div class="language-tab">Python</div>
-                <pre><code>from flask import Flask, request, jsonify, render_template
-
-app = Flask(__name__)
-
-# Sample gear database
-gear_db = {
-    "masks": {
-        "coyotes-mask": {
-            "name": "Coyote's Mask",
-            "brand": "Exotic",
-            "core": "Weapon Damage",
-            "attributes": ["Critical Hit Chance", "Critical Hit Damage"],
-            "talent": "Pack Instincts",
-            "quality": "Exotic"
-        }
-    },
-    # More gear items...
-}
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/generate_build', methods=['POST'])
-def generate_build():
-    gear_selection = request.json
-    
-    build = {}
-    for slot, item_id in gear_selection.items():
-        if item_id and item_id in gear_db.get(slot, {}):
-            build[slot] = gear_db[slot][item_id]
-    
-    # Add build optimization logic here
-    # This could include calculating stat totals, checking set bonuses, etc.
-    
-    return jsonify(build)
-
-if __name__ == '__main__':
-    app.run(debug=True)</code></pre>
-            </div>
-            
-            <h3>PHP (Server-side)</h3>
-            <div class="code-example">
-                <div class="language-tab">PHP</div>
-                <pre><code>&lt;?php
-// gear_data.php - Sample gear data
-$gear_data = [
-    'masks' => [
-        'coyotes-mask' => [
-            'name' => "Coyote's Mask",
-            'brand' => "Exotic",
-            'core' => "Weapon Damage",
-            'attributes' => ["Critical Hit Chance", "Critical Hit Damage"],
-            'talent' => "Pack Instincts",
-            'quality' => "Exotic"
-        ]
-    ],
-    // More gear items...
-];
-
-// generate_build.php - Build generation endpoint
-header('Content-Type: application/json');
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    $build = [];
-    
-    foreach ($input as $slot => $item_id) {
-        if (!empty($item_id) && isset($gear_data[$slot][$item_id])) {
-            $build[$slot] = $gear_data[$slot][$item_id];
-        }
-    }
-    
-    // Add build optimization logic here
-    
-    echo json_encode($build);
-    exit;
-}
-
-// Frontend rendering
-?&gt;
-&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;Division 2 Gear Builder&lt;/title&gt;
-    &lt;!-- HTML and CSS would be similar to the main implementation --&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;!-- Form and UI elements --&gt;
-    &lt;script&gt;
-        // JavaScript to handle form submission to PHP backend
-        document.getElementById('generate-build').addEventListener('click', function() {
-            const selectedGear = {
-                mask: document.getElementById('mask').value,
-                backpack: document.getElementById('backpack').value,
-                chest: document.getElementById('chest').value,
-                gloves: document.getElementById('gloves').value,
-                holster: document.getElementById('holster').value,
-                kneepads: document.getElementById('kneepads').value,
-                weapon: document.getElementById('weapon').value
-            };
-            
-            fetch('generate_build.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(selectedGear)
-            })
-            .then(response => response.json())
-            .then(build => {
-                // Display the generated build
-                displayBuild(build);
-            });
-        });
-    &lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
             </div>
         </div>
     </div>
@@ -925,76 +709,427 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             },
             weapons: {
-                'famas': {
-                    name: "FAMAS 2010",
+                'acr': {
+                    name: "ACR",
                     type: "Assault Rifle",
-                    damage: "High",
-                    rpm: 900,
+                    rpm: 650,
                     magazine: 30,
-                    talent: "Optimist",
+                    damage: "Medium",
+                    talent: "N/A",
                     quality: "High-End"
                 },
-                'carbine7': {
+                'acr-e': {
+                    name: "ACR-E",
+                    type: "Assault Rifle",
+                    rpm: 650,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'ak-m': {
+                    name: "AK-M",
+                    type: "Assault Rifle",
+                    rpm: 600,
+                    magazine: 30,
+                    damage: "High",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'military-ak-m': {
+                    name: "Military AK-M",
+                    type: "Assault Rifle",
+                    rpm: 600,
+                    magazine: 30,
+                    damage: "High",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'black-market-ak-m': {
+                    name: "Black Market AK-M",
+                    type: "Assault Rifle",
+                    rpm: 600,
+                    magazine: 30,
+                    damage: "High",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'first-sight': {
+                    name: "First Sight",
+                    type: "Assault Rifle",
+                    rpm: 600,
+                    magazine: 30,
+                    damage: "High",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'manic': {
+                    name: "Manic",
+                    type: "Assault Rifle",
+                    rpm: 600,
+                    magazine: 30,
+                    damage: "High",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'aug-a3-cqc': {
+                    name: "AUG A3-CQC",
+                    type: "Assault Rifle",
+                    rpm: 680,
+                    magazine: 42,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'invisible-hand': {
+                    name: "Invisible Hand",
+                    type: "Assault Rifle",
+                    rpm: 782,
+                    magazine: 42,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'bighorn': {
+                    name: "The Bighorn",
+                    type: "Assault Rifle",
+                    rpm: 800,
+                    magazine: 42,
+                    damage: "High",
+                    talent: "Exotic",
+                    quality: "Exotic"
+                },
+                'carbine-7': {
                     name: "Carbine 7",
                     type: "Assault Rifle",
+                    rpm: 790,
+                    magazine: 30,
                     damage: "Medium",
-                    rpm: 750,
-                    magazine: 40,
-                    talent: "Strained",
+                    talent: "N/A",
                     quality: "High-End"
                 },
-                'm1a': {
-                    name: "Classic M1A",
-                    type: "Rifle",
-                    damage: "Very High",
-                    rpm: 260,
-                    magazine: 20,
-                    talent: "Boomerang",
-                    quality: "High-End"
-                },
-                'vector': {
-                    name: "Vector SBR 9mm",
-                    type: "SMG",
-                    damage: "Medium",
-                    rpm: 1200,
-                    magazine: 19,
-                    talent: "Fast Hands",
-                    quality: "High-End"
-                },
-                'mk17': {
-                    name: "MK17",
-                    type: "Rifle",
-                    damage: "High",
-                    rpm: 300,
-                    magazine: 20,
-                    talent: "Ranger",
-                    quality: "High-End"
-                },
-                'chameleon': {
-                    name: "Chameleon",
+                'drill': {
+                    name: "The Drill",
                     type: "Assault Rifle",
+                    rpm: 790,
+                    magazine: 30,
                     damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'f2000': {
+                    name: "F2000",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'shield-splinterer': {
+                    name: "Shield Splinterer",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'fal': {
+                    name: "FAL",
+                    type: "Assault Rifle",
+                    rpm: 700,
+                    magazine: 20,
+                    damage: "High",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'fal-sa-58': {
+                    name: "FAL SA-58",
+                    type: "Assault Rifle",
+                    rpm: 700,
+                    magazine: 20,
+                    damage: "High",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'strega': {
+                    name: "Strega",
+                    type: "Assault Rifle",
+                    rpm: 700,
+                    magazine: 20,
+                    damage: "High",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'famas-2010': {
+                    name: "FAMAS 2010",
+                    type: "Assault Rifle",
                     rpm: 900,
-                    magazine: 50,
-                    talent: "Adaptive Instincts",
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'huntsman': {
+                    name: "Huntsman",
+                    type: "Assault Rifle",
+                    rpm: 900,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'burn-out': {
+                    name: "Burn Out",
+                    type: "Assault Rifle",
+                    rpm: 900,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'military-g36': {
+                    name: "Military G36",
+                    type: "Assault Rifle",
+                    rpm: 750,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'g36-c': {
+                    name: "G36 C",
+                    type: "Assault Rifle",
+                    rpm: 750,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'caretaker': {
+                    name: "Caretaker",
+                    type: "Assault Rifle",
+                    rpm: 750,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'born-great': {
+                    name: "Born Great",
+                    type: "Assault Rifle",
+                    rpm: 750,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'honey-badger': {
+                    name: "Honey Badger",
+                    type: "Assault Rifle",
+                    rpm: 800,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'savage-wolverine': {
+                    name: "Savage Wolverine",
+                    type: "Assault Rifle",
+                    rpm: 800,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'police-m4': {
+                    name: "Police M4",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'pyromaniac': {
+                    name: "Pyromaniac",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'lexington': {
+                    name: "Lexington",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'st-elmos-engine': {
+                    name: "St. Elmo's Engine",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 40,
+                    damage: "Medium",
+                    talent: "Exotic",
                     quality: "Exotic"
                 },
-                'bullet-king': {
-                    name: "Bullet King",
-                    type: "LMG",
+                'mk16': {
+                    name: "Mk16",
+                    type: "Assault Rifle",
+                    rpm: 650,
+                    magazine: 30,
                     damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'socom-mk16': {
+                    name: "SOCOM Mk16",
+                    type: "Assault Rifle",
+                    rpm: 650,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'lud': {
+                    name: "Lud",
+                    type: "Assault Rifle",
+                    rpm: 650,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'military-p416': {
+                    name: "Military P416",
+                    type: "Assault Rifle",
                     rpm: 850,
-                    magazine: 100,
-                    talent: "Bullet Hell",
-                    quality: "Exotic"
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'custom-p416-g3': {
+                    name: "Custom P416 G3",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'glory-daze': {
+                    name: "Glory Daze",
+                    type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
                 },
                 'eagle-bearer': {
                     name: "Eagle Bearer",
                     type: "Assault Rifle",
+                    rpm: 850,
+                    magazine: 30,
                     damage: "High",
+                    talent: "Exotic",
+                    quality: "Exotic"
+                },
+                'pdr': {
+                    name: "PDR",
+                    type: "Assault Rifle",
                     rpm: 700,
                     magazine: 30,
-                    talent: "Tenacity",
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'test-subject': {
+                    name: "Test Subject",
+                    type: "Assault Rifle",
+                    rpm: 700,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'capacitor': {
+                    name: "Capacitor",
+                    type: "Assault Rifle",
+                    rpm: 700,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Exotic",
+                    quality: "Exotic"
+                },
+                'sig-sauer-556': {
+                    name: "Sig Sauer 556",
+                    type: "Assault Rifle",
+                    rpm: 700,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'mechanical-animal': {
+                    name: "Mechanical Animal",
+                    type: "Assault Rifle",
+                    rpm: 700,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'tkb-408': {
+                    name: "TKB-408",
+                    type: "Assault Rifle",
+                    rpm: 600,
+                    magazine: 30,
+                    damage: "High",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'kingbreaker': {
+                    name: "Kingbreaker",
+                    type: "Assault Rifle",
+                    rpm: 600,
+                    magazine: 30,
+                    damage: "High",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'ctar-21': {
+                    name: "CTAR-21",
+                    type: "Assault Rifle",
+                    rpm: 900,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "N/A",
+                    quality: "High-End"
+                },
+                'railsplitter': {
+                    name: "The Railsplitter",
+                    type: "Assault Rifle",
+                    rpm: 900,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Special",
+                    quality: "Named"
+                },
+                'chameleon': {
+                    name: "Chameleon",
+                    type: "Assault Rifle",
+                    rpm: 900,
+                    magazine: 30,
+                    damage: "Medium",
+                    talent: "Exotic",
                     quality: "Exotic"
                 }
             }
@@ -1024,7 +1159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     else if (item.quality === 'Named') qualityPrefix = '◆ ';
                     else if (item.quality === 'Gear Set') qualityPrefix = '◼ ';
                     
-                    option.textContent = `${qualityPrefix}${item.name} (${item.brand})`;
+                    option.textContent = `${qualityPrefix}${item.name} (${item.type})`;
                     dropdown.appendChild(option);
                 }
             });
@@ -1093,7 +1228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="gear-slot">
                         <div class="gear-name ${qualityClass}">${slot.charAt(0).toUpperCase() + slot.slice(1)}: ${item.name}</div>
                         <div class="gear-stats">
-                            Brand: ${item.brand}<br>
+                            ${item.brand ? `Brand: ${item.brand}<br>` : ''}
                             ${item.core && item.core !== "N/A" ? `Core: ${item.core}<br>` : ''}
                             ${item.attributes ? `Attributes: ${item.attributes.join(', ')}<br>` : ''}
                             ${item.talent ? `Talent: ${item.talent}<br>` : ''}
